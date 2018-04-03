@@ -137,9 +137,16 @@ module.exports = function() {
 
                         var replace = transform(opts.transform, importName, matches);
 
-                        var newImportSpecifier = (opts.skipDefaultConversion)
-                            ? memberImport
-                            : types.importDefaultSpecifier(types.identifier(memberImport.local.name));
+                        var newImportSpecifier;
+                        if (Array.isArray(replace)) {
+                          var local = types.identifier(replace[0]);
+                          replace = replace[1];
+                          newImportSpecifier = types.importSpecifier(local, local);
+                        } else {
+                            newImportSpecifier = (opts.skipDefaultConversion)
+                                ? memberImport
+                                : types.importDefaultSpecifier(types.identifier(memberImport.local.name));
+                        }
 
                         transforms.push(types.importDeclaration(
                             [newImportSpecifier],

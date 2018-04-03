@@ -23,9 +23,9 @@ function occurrences(regex, test) {
     return (test.match(regex) || []).length;
 }
 
-function transform(code, options = createOptions({})) {
+function transform(code, options = createOptions({}), es2015Options = {}) {
     return babel.transform(code, {
-        presets: ['es2015'],
+        presets: [['es2015', es2015Options]],
         plugins: [['./index', options]]
     }).code;
 }
@@ -145,6 +145,15 @@ describe('transform as function', function() {
 
         assert.notEqual(code.indexOf('path/somePath'), -1, 'function should transform somePath to path/somePath');
     });
+
+  it('should call the transform passing the import specifier when an array is returned', () => {
+    const options = createOptions({ transform: './test/transformArray.js' });
+
+    const code = transform(`import { upperCaseMe } from 'react-bootstrap'`, options, {modules: false});
+
+    assert.notEqual(code.indexOf('import { testArray }'), -1, 'function should transform returned arrays');
+    assert.notEqual(code.indexOf('UPPERCASEME'), -1, 'member name upperCaseMe should be transformed to UPPERCASEME');
+  });
 });
 
 describe('preventFullImport plugin option', function() {
