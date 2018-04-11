@@ -61,7 +61,7 @@ function transform(transformOption, importName, matches) {
             barf('expected transform function to be exported from ' + transformOption);
         }
 
-        return transformFn(importName, matches);
+        return transformFn.call(this, importName, matches);
     }
 
     return transformOption.replace(/\$\{\s?([\w\d]*)\s?\}/ig, function(str, g1) {
@@ -79,7 +79,7 @@ module.exports = function() {
                 // path.node has properties 'source' and 'specifiers' attached.
                 // path.node.source is the library/module name, aka 'react-bootstrap'.
                 // path.node.specifiers is an array of ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier
-
+                var self = this;
                 var source = path.node.source.value;
 
                 var opt = findOptionFromSource(source, state);
@@ -135,7 +135,7 @@ module.exports = function() {
                         if (opts.kebabCase) importName = kebab(importName);
                         if (opts.snakeCase) importName = snake(importName);
 
-                        var replace = transform(opts.transform, importName, matches);
+                        var replace = transform.call(self, opts.transform, importName, matches);
 
                         var newImportSpecifier;
                         if (Array.isArray(replace)) {
